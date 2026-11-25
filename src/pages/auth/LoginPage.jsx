@@ -228,7 +228,7 @@ export const LoginPage = () => {
           className="w-full h-full object-cover scale-105 filter brightness-[0.75] contrast-[1.05]"
         >
           <source src={`${import.meta.env.BASE_URL}login-bg.mp4`} type="video/mp4" />
-          <source src="https://v1.pinimg.com/videos/mc/720p/05/9c/f3/059cf32611e0d62792dca7b7ebdf48c9.mp4" type="video/mp4" />
+          <source src="https://v1.pinimg.com/videos/iht/expMp4/73/e3/45/73e345f9d334f51cad2509e6e97f85a6_720w.mp4" type="video/mp4" />
         </video>
         {/* Soft dark overlay for contrast and sleek glassmorphism */}
         <div className="absolute inset-0 bg-gradient-to-b from-slate-950/75 via-slate-950/55 to-slate-950/85 backdrop-blur-[1px]" />
