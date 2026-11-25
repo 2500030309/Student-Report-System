@@ -217,15 +217,15 @@ export const LoginPage = () => {
   const isFacPasswordValid = regFacPassword.trim().length >= 4;
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Dynamic Background Video from Pinterest (with local asset & CDN fallback) */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+    <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative">
+      {/* Dynamic Background Video - FIXED full-screen so it stays exact and never shifts when scrolling */}
+      <div className="fixed inset-0 w-screen h-screen overflow-hidden pointer-events-none z-0">
         <video
           autoPlay
           loop
           muted
           playsInline
-          className="w-full h-full object-cover scale-105 filter brightness-[0.75] contrast-[1.05]"
+          className="w-full h-full object-cover filter brightness-[0.75] contrast-[1.05]"
         >
           <source src={`${import.meta.env.BASE_URL}login-bg.mp4`} type="video/mp4" />
           <source src="https://v1.pinimg.com/videos/iht/expMp4/73/e3/45/73e345f9d334f51cad2509e6e97f85a6_720w.mp4" type="video/mp4" />
@@ -234,9 +234,9 @@ export const LoginPage = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-slate-950/75 via-slate-950/55 to-slate-950/85 backdrop-blur-[1px]" />
       </div>
 
-      {/* Decorative background glow spheres */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-600/20 rounded-full blur-3xl pointer-events-none z-0" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/15 rounded-full blur-3xl pointer-events-none z-0" />
+      {/* Decorative background glow spheres (fixed with viewport) */}
+      <div className="fixed top-1/4 left-1/4 w-96 h-96 bg-brand-600/20 rounded-full blur-3xl pointer-events-none z-0" />
+      <div className="fixed bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/15 rounded-full blur-3xl pointer-events-none z-0" />
 
       {/* Top Banner / Academic Branding */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center z-10 px-4">
