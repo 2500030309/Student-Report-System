@@ -10,23 +10,30 @@ import {
   BookOpen,
   Award,
   Edit,
-  CheckCircle2
+  CheckCircle2,
+  Lock,
+  Eye,
+  EyeOff,
+  AlertCircle
 } from 'lucide-react';
 
 export const AdminFaculty = () => {
   const { faculty, subjects, addFaculty, updateFaculty } = useData();
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [modalError, setModalError] = useState('');
 
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    password: '',
     phone: '',
     designation: 'Assistant Professor',
     department: 'Computer Science & Engineering',
-    qualification: 'M.Tech',
+    qualification: 'M.Tech / Ph.D',
     experience: '5 Years',
-    subjects: ['Design & Analysis of Algorithms']
+    specialization: 'Design & Analysis of Algorithms'
   });
 
   const filteredFaculty = faculty.filter(f =>
@@ -35,10 +42,45 @@ export const AdminFaculty = () => {
     f.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const isEmailValid = formData.email.includes('@') && formData.email.length >= 3;
+  const isPasswordValid = formData.password.trim().length >= 4;
+
   const handleSaveAdd = (e) => {
     e.preventDefault();
-    addFaculty(formData);
+    setModalError('');
+
+    if (!formData.name.trim()) {
+      setModalError('Please enter faculty full name');
+      return;
+    }
+
+    if (!isEmailValid) {
+      setModalError('Please enter a valid institutional email containing "@"');
+      return;
+    }
+
+    if (!isPasswordValid) {
+      setModalError('Password must be at least 4 characters long');
+      return;
+    }
+
+    addFaculty({
+      ...formData,
+      subjects: [formData.specialization || 'Design & Analysis of Algorithms']
+    });
+
     setIsAddModalOpen(false);
+    setFormData({
+      name: '',
+      email: '',
+      password: '',
+      phone: '',
+      designation: 'Assistant Professor',
+      department: 'Computer Science & Engineering',
+      qualification: 'M.Tech / Ph.D',
+      experience: '5 Years',
+      specialization: 'Design & Analysis of Algorithms'
+    });
   };
 
   return (
@@ -143,14 +185,21 @@ export const AdminFaculty = () => {
       {/* Add Faculty Modal */}
       <Modal
         isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        title="Add Faculty Member"
+        onClose={() => { setIsAddModalOpen(false); setModalError(''); }}
+        title="Add Faculty Member (Runtime Creation)"
         maxWidth="max-w-lg"
       >
-        <form onSubmit={handleSaveAdd} className="space-y-4 text-xs">
+        <form onSubmit={handleSaveAdd} className="space-y-3.5 text-xs">
+          {modalError && (
+            <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs flex items-center space-x-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{modalError}</span>
+            </div>
+          )}
+
           <div>
             <label className="block font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
-              Full Name
+              Full Name *
             </label>
             <input
               type="text"
@@ -158,35 +207,60 @@ export const AdminFaculty = () => {
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="e.g. Dr. Arvind Swaminathan"
-              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
+              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
-                Institutional Email
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block font-bold uppercase text-slate-600 dark:text-slate-400">
+                  Email (With @) *
+                </label>
+                {formData.email && (
+                  <span className={`text-[10px] font-bold ${isEmailValid ? 'text-emerald-500' : 'text-rose-500'}`}>
+                    {isEmailValid ? '✓ Valid @' : '✗ Missing @'}
+                  </span>
+                )}
+              </div>
               <input
                 type="email"
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="faculty@edutrack.edu"
-                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
+                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white"
               />
             </div>
+
             <div>
-              <label className="block font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="+91 98450..."
-                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
-              />
+              <div className="flex items-center justify-between mb-1">
+                <label className="block font-bold uppercase text-slate-600 dark:text-slate-400">
+                  Password (&ge;4 chars) *
+                </label>
+                {formData.password && (
+                  <span className={`text-[10px] font-bold ${isPasswordValid ? 'text-emerald-500' : 'text-rose-500'}`}>
+                    {isPasswordValid ? '✓ OK' : `${formData.password.length}/4`}
+                  </span>
+                )}
+              </div>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  placeholder="Min 4 characters"
+                  className="w-full pl-3 pr-8 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -198,32 +272,77 @@ export const AdminFaculty = () => {
               <select
                 value={formData.designation}
                 onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
+                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white"
               >
                 <option value="Professor & HOD">Professor & HOD</option>
                 <option value="Associate Professor">Associate Professor</option>
                 <option value="Assistant Professor">Assistant Professor</option>
+                <option value="Senior Lecturer">Senior Lecturer</option>
                 <option value="Adjunct Lecturer">Adjunct Lecturer</option>
               </select>
             </div>
             <div>
               <label className="block font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
-                Highest Qualification
+                Department
+              </label>
+              <select
+                value={formData.department}
+                onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white"
+              >
+                <option value="Computer Science & Engineering">Computer Science & Engineering</option>
+                <option value="Information Technology">Information Technology</option>
+                <option value="Electronics & Communication">Electronics & Communication</option>
+                <option value="Electrical Engineering">Electrical Engineering</option>
+                <option value="Mechanical Engineering">Mechanical Engineering</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
+                Qualification
               </label>
               <input
                 type="text"
                 value={formData.qualification}
                 onChange={(e) => setFormData({ ...formData, qualification: e.target.value })}
                 placeholder="e.g. Ph.D, M.Tech"
-                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
+                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white"
               />
             </div>
+            <div>
+              <label className="block font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
+                Allocated Subject
+              </label>
+              <input
+                type="text"
+                value={formData.specialization}
+                onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
+                placeholder="e.g. Artificial Intelligence"
+                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
+              Phone Number (Optional)
+            </label>
+            <input
+              type="tel"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              placeholder="+91 98450 12345"
+              className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white"
+            />
           </div>
 
           <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end space-x-2">
             <button
               type="button"
-              onClick={() => setIsAddModalOpen(false)}
+              onClick={() => { setIsAddModalOpen(false); setModalError(''); }}
               className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               Cancel
@@ -232,7 +351,7 @@ export const AdminFaculty = () => {
               type="submit"
               className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-brand-600 hover:bg-brand-500 shadow-glow"
             >
-              Save Faculty Record
+              Save & Create Faculty Login
             </button>
           </div>
         </form>

@@ -48,13 +48,13 @@ export const FacultyDashboard = () => {
           <div>
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-brand-200 text-xs font-semibold mb-2">
               <Sparkles className="w-3.5 h-3.5 text-brand-300" />
-              <span>Department of Computer Science & Engineering</span>
+              <span>{currentUser?.department || 'Department of Computer Science & Engineering'}</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
               Good morning, {currentUser?.name || 'Prof. Sneha Sen'}
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl font-normal">
-              Class Incharge for B.Tech CSE Section 5A • You have 2 lecture sessions and 1 laboratory practical scheduled today.
+              {currentUser?.designation || 'Faculty Member'} {currentUser?.qualification ? `(${currentUser.qualification})` : ''} • Teaching: {Array.isArray(currentUser?.subjects) ? currentUser.subjects.join(', ') : 'Design & Analysis of Algorithms'} • 2 lecture sessions scheduled today.
             </p>
           </div>
 

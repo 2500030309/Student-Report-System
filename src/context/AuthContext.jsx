@@ -63,17 +63,46 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: studentUser };
     }
 
-    // 3. Check demo user accounts by email
+    // 3. Check all faculty in localStorage (including runtime-created teachers!)
+    const allFaculty = getStorageItem(KEYS.FACULTY, []);
+    const foundFaculty = allFaculty.find(
+      f => f.email && f.email.toLowerCase() === cleanEmail
+    );
+
+    if (foundFaculty) {
+      if (foundFaculty.password && cleanPass && foundFaculty.password !== cleanPass) {
+        return { success: false, error: 'Incorrect password for this faculty account. Please try again.' };
+      }
+
+      const facultyUser = {
+        id: foundFaculty.id,
+        role: 'faculty',
+        name: foundFaculty.name,
+        email: foundFaculty.email,
+        designation: foundFaculty.designation || 'Assistant Professor',
+        department: foundFaculty.department || 'Computer Science & Engineering',
+        qualification: foundFaculty.qualification || 'M.Tech / Ph.D',
+        phone: foundFaculty.phone || '+91 98450 12345',
+        experience: foundFaculty.experience || '5+ Years',
+        subjects: foundFaculty.subjects || ['Design & Analysis of Algorithms'],
+        avatar: foundFaculty.avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'
+      };
+
+      setUser(facultyUser);
+      return { success: true, user: facultyUser };
+    }
+
+    // 4. Check demo user accounts by email
     const demoByEmail = MOCK_USERS.find(u => u.email.toLowerCase() === cleanEmail);
     if (demoByEmail) {
       setUser(demoByEmail);
       return { success: true, user: demoByEmail };
     }
 
-    // 4. If email contains @ and password is provided, fallback/create student session
+    // 5. Account not found
     return {
       success: false,
-      error: 'Account not found with this email. Click "Create Student Account" above to register!'
+      error: 'Account not found with this email. Click "Create Account" above to register!'
     };
   };
 
@@ -150,6 +179,74 @@ export const AuthProvider = ({ children }) => {
     return { success: true, user: studentUser };
   };
 
+  const registerFaculty = (facultyData) => {
+    const name = facultyData.name?.trim();
+    const email = facultyData.email?.trim().toLowerCase();
+    const password = facultyData.password?.trim();
+
+    // Strict Validation:
+    // 1. Email must contain '@'
+    if (!email || !email.includes('@')) {
+      return { success: false, error: 'Please enter a valid faculty email containing "@"' };
+    }
+
+    // 2. Password minimum 4 characters
+    if (!password || password.length < 4) {
+      return { success: false, error: 'Password must be at least 4 characters long' };
+    }
+
+    if (!name) {
+      return { success: false, error: 'Please enter faculty full name' };
+    }
+
+    const allFaculty = getStorageItem(KEYS.FACULTY, []);
+    const existing = allFaculty.find(f => f.email && f.email.toLowerCase() === email);
+    if (existing) {
+      return { success: false, error: 'A faculty account with this email already exists. Please sign in!' };
+    }
+
+    const newFaculty = {
+      id: `FAC${Date.now().toString().slice(-4)}`,
+      name,
+      email,
+      password,
+      designation: facultyData.designation || 'Assistant Professor',
+      department: facultyData.department || 'Computer Science & Engineering',
+      qualification: facultyData.qualification || 'M.Tech / Ph.D',
+      experience: facultyData.experience || '4+ Years',
+      phone: facultyData.phone || '+91 98765 43210',
+      subjects: facultyData.subjects && facultyData.subjects.length > 0
+        ? facultyData.subjects
+        : [facultyData.specialization || 'Design & Analysis of Algorithms'],
+      avatar: facultyData.avatar || (facultyData.gender === 'Female'
+        ? 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'
+        : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'),
+      status: 'Active'
+    };
+
+    // Save to localStorage
+    const updated = [newFaculty, ...allFaculty];
+    setStorageItem(KEYS.FACULTY, updated);
+
+    // Create session
+    const facultyUser = {
+      id: newFaculty.id,
+      role: 'faculty',
+      name: newFaculty.name,
+      email: newFaculty.email,
+      designation: newFaculty.designation,
+      department: newFaculty.department,
+      qualification: newFaculty.qualification,
+      experience: newFaculty.experience,
+      phone: newFaculty.phone,
+      subjects: newFaculty.subjects,
+      avatar: newFaculty.avatar
+    };
+
+    setUser(facultyUser);
+    return { success: true, user: facultyUser };
+  };
+
   const switchRole = (role) => {
     const found = MOCK_USERS.find(u => u.role === role);
     if (found) {
@@ -175,6 +272,7 @@ export const AuthProvider = ({ children }) => {
         role: user ? user.role : null,
         login,
         registerStudent,
+        registerFaculty,
         switchRole,
         logout,
         updateProfile

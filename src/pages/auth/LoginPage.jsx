@@ -16,18 +16,22 @@ import {
   AlertCircle,
   UserPlus,
   LogIn,
-  User
+  User,
+  Briefcase
 } from 'lucide-react';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const { login, registerStudent } = useAuth();
+  const { login, registerStudent, registerFaculty } = useAuth();
   const { settings } = useAcademicData();
 
   // Mode: 'signin' or 'register'
   const [authMode, setAuthMode] = useState('signin');
+
+  // Register account type: 'student' or 'faculty'
+  const [regRole, setRegRole] = useState('student');
 
   // Sign In state
   const [email, setEmail] = useState('admin@edutrack.edu');
@@ -48,6 +52,17 @@ export const LoginPage = () => {
   const [regRollNumber, setRegRollNumber] = useState('');
   const [regDepartment, setRegDepartment] = useState('Computer Science & Engineering');
   const [regShowPassword, setRegShowPassword] = useState(false);
+
+  // Registration state for new teacher/faculty runtime creation
+  const [regFacName, setRegFacName] = useState('');
+  const [regFacEmail, setRegFacEmail] = useState('');
+  const [regFacPassword, setRegFacPassword] = useState('');
+  const [regFacShowPassword, setRegFacShowPassword] = useState(false);
+  const [regFacDesignation, setRegFacDesignation] = useState('Assistant Professor');
+  const [regFacDepartment, setRegFacDepartment] = useState('Computer Science & Engineering');
+  const [regFacQualification, setRegFacQualification] = useState('M.Tech / Ph.D');
+  const [regFacSpecialization, setRegFacSpecialization] = useState('Design & Analysis of Algorithms');
+  const [regFacPhone, setRegFacPhone] = useState('');
 
   // Demo accounts
   const demoAccounts = [
@@ -146,6 +161,49 @@ export const LoginPage = () => {
     }, 400);
   };
 
+  const handleRegisterFacultySubmit = (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!regFacEmail || !regFacEmail.includes('@')) {
+      setError('Please enter a valid faculty email containing "@"');
+      return;
+    }
+
+    if (!regFacPassword || regFacPassword.trim().length < 4) {
+      setError('Password must be at least 4 characters long');
+      return;
+    }
+
+    if (!regFacName.trim()) {
+      setError('Please enter faculty full name');
+      return;
+    }
+
+    setIsLoading(true);
+
+    setTimeout(() => {
+      const res = registerFaculty({
+        name: regFacName,
+        email: regFacEmail,
+        password: regFacPassword,
+        designation: regFacDesignation,
+        department: regFacDepartment,
+        qualification: regFacQualification,
+        specialization: regFacSpecialization,
+        phone: regFacPhone
+      });
+
+      setIsLoading(false);
+
+      if (res.success) {
+        navigate('/faculty/dashboard');
+      } else {
+        setError(res.error || 'Could not register faculty profile. Please check details.');
+      }
+    }, 400);
+  };
+
   const handleForgotSubmit = (e) => {
     e.preventDefault();
     setResetSuccess(true);
@@ -158,6 +216,9 @@ export const LoginPage = () => {
   // Real-time validation status helpers
   const isEmailValid = regEmail.includes('@') && regEmail.length >= 3;
   const isPasswordValid = regPassword.trim().length >= 4;
+
+  const isFacEmailValid = regFacEmail.includes('@') && regFacEmail.length >= 3;
+  const isFacPasswordValid = regFacPassword.trim().length >= 4;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -209,7 +270,7 @@ export const LoginPage = () => {
               }`}
             >
               <UserPlus className="w-3.5 h-3.5" />
-              <span>Create Student Account</span>
+              <span>Create Account</span>
             </button>
           </div>
 
@@ -350,161 +411,360 @@ export const LoginPage = () => {
                   onClick={() => { setAuthMode('register'); setError(''); }}
                   className="text-xs text-brand-600 dark:text-brand-400 hover:underline font-semibold"
                 >
-                  New student? Click here to Create Student Account
+                  New to EduTrack? Click here to Create Student or Teacher Account
                 </button>
               </div>
             </div>
           )}
 
-          {/* ===================== MODE 2: CREATE STUDENT ACCOUNT ===================== */}
+          {/* ===================== MODE 2: CREATE ACCOUNT (STUDENT & TEACHER) ===================== */}
           {authMode === 'register' && (
             <div className="animate-fade-in">
-              <div className="mb-5 text-center">
+              <div className="mb-4 text-center">
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                  Create Student Account
+                  {regRole === 'student' ? 'Create Student Account' : 'Create Teacher / Faculty Profile'}
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  Register a new student in real-time with verified credentials
+                  {regRole === 'student'
+                    ? 'Register a new student with real-time academic credentials'
+                    : 'Register an academic faculty member with department appointments'}
                 </p>
               </div>
 
-              <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
-                {/* Full Name */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Student Full Name *
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <User className="w-4 h-4" />
-                    </div>
-                    <input
-                      type="text"
-                      required
-                      value={regName}
-                      onChange={(e) => setRegName(e.target.value)}
-                      placeholder="e.g. Aniket Patel"
-                      className="block w-full pl-10 pr-4 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                    />
-                  </div>
-                </div>
-
-                {/* Email with @ validation */}
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                      Email Address (Must contain @) *
-                    </label>
-                    {regEmail && (
-                      <span className={`text-[10px] font-bold ${isEmailValid ? 'text-emerald-500' : 'text-rose-500'}`}>
-                        {isEmailValid ? '✓ Valid @ email' : '✗ Missing @'}
-                      </span>
-                    )}
-                  </div>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <Mail className="w-4 h-4" />
-                    </div>
-                    <input
-                      type="email"
-                      required
-                      value={regEmail}
-                      onChange={(e) => setRegEmail(e.target.value)}
-                      placeholder="e.g. aniket@gmail.com or aniket@edutrack.edu"
-                      className={`block w-full pl-10 pr-4 py-2 text-xs rounded-xl border ${
-                        regEmail && !isEmailValid
-                          ? 'border-rose-400 focus:ring-rose-400'
-                          : 'border-slate-300 dark:border-slate-700 focus:ring-brand-500'
-                      } bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2`}
-                    />
-                  </div>
-                  <p className="text-[10px] text-slate-400 mt-1">
-                    Must be a valid email containing <strong className="text-brand-500">@</strong> (e.g., student@domain.com)
-                  </p>
-                </div>
-
-                {/* Password with min 4 char validation */}
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                      Password (Minimum 4 characters) *
-                    </label>
-                    {regPassword && (
-                      <span className={`text-[10px] font-bold ${isPasswordValid ? 'text-emerald-500' : 'text-rose-500'}`}>
-                        {isPasswordValid ? `✓ ${regPassword.length} chars (OK)` : `${regPassword.length}/4 chars`}
-                      </span>
-                    )}
-                  </div>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <Lock className="w-4 h-4" />
-                    </div>
-                    <input
-                      type={regShowPassword ? 'text' : 'password'}
-                      required
-                      value={regPassword}
-                      onChange={(e) => setRegPassword(e.target.value)}
-                      placeholder="Enter minimum 4 characters"
-                      className={`block w-full pl-10 pr-10 py-2 text-xs rounded-xl border ${
-                        regPassword && !isPasswordValid
-                          ? 'border-rose-400 focus:ring-rose-400'
-                          : 'border-slate-300 dark:border-slate-700 focus:ring-brand-500'
-                      } bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setRegShowPassword(!regShowPassword)}
-                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                    >
-                      {regShowPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                  <p className="text-[10px] text-slate-400 mt-1">
-                    Password must be at least <strong className="text-brand-500">4 characters</strong> long
-                  </p>
-                </div>
-
-                {/* Roll Number (optional/auto) */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                      Roll Number (Optional)
-                    </label>
-                    <input
-                      type="text"
-                      value={regRollNumber}
-                      onChange={(e) => setRegRollNumber(e.target.value)}
-                      placeholder="e.g. 22CSE052"
-                      className="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                      Department
-                    </label>
-                    <select
-                      value={regDepartment}
-                      onChange={(e) => setRegDepartment(e.target.value)}
-                      className="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
-                    >
-                      <option value="Computer Science & Engineering">Computer Science</option>
-                      <option value="Electronics & Communication">Electronics</option>
-                    </select>
-                  </div>
-                </div>
-
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="lg"
-                  loading={isLoading}
-                  className="w-full mt-3 py-3 text-xs font-bold shadow-lg shadow-brand-500/25"
-                  icon={UserPlus}
-                  iconPosition="right"
+              {/* Sub-toggle: Student vs Faculty */}
+              <div className="mb-4 flex rounded-xl p-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <button
+                  type="button"
+                  onClick={() => { setRegRole('student'); setError(''); }}
+                  className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center justify-center space-x-1.5 ${
+                    regRole === 'student'
+                      ? 'bg-brand-600 text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
                 >
-                  Create Student Account & Enter
-                </Button>
-              </form>
+                  <User className="w-3.5 h-3.5" />
+                  <span>Student</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setRegRole('faculty'); setError(''); }}
+                  className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center justify-center space-x-1.5 ${
+                    regRole === 'faculty'
+                      ? 'bg-brand-600 text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  <Briefcase className="w-3.5 h-3.5" />
+                  <span>Teacher / Faculty</span>
+                </button>
+              </div>
+
+              {/* ----- OPTION A: STUDENT REGISTRATION FORM ----- */}
+              {regRole === 'student' && (
+                <form onSubmit={handleRegisterSubmit} className="space-y-3">
+                  {/* Full Name */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      Student Full Name *
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <User className="w-4 h-4" />
+                      </div>
+                      <input
+                        type="text"
+                        required
+                        value={regName}
+                        onChange={(e) => setRegName(e.target.value)}
+                        placeholder="e.g. Aniket Patel"
+                        className="block w-full pl-10 pr-4 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Email with @ validation */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        Email Address (Must contain @) *
+                      </label>
+                      {regEmail && (
+                        <span className={`text-[10px] font-bold ${isEmailValid ? 'text-emerald-500' : 'text-rose-500'}`}>
+                          {isEmailValid ? '✓ Valid @ email' : '✗ Missing @'}
+                        </span>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <Mail className="w-4 h-4" />
+                      </div>
+                      <input
+                        type="email"
+                        required
+                        value={regEmail}
+                        onChange={(e) => setRegEmail(e.target.value)}
+                        placeholder="e.g. aniket@gmail.com or aniket@edutrack.edu"
+                        className={`block w-full pl-10 pr-4 py-2 text-xs rounded-xl border ${
+                          regEmail && !isEmailValid
+                            ? 'border-rose-400 focus:ring-rose-400'
+                            : 'border-slate-300 dark:border-slate-700 focus:ring-brand-500'
+                        } bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2`}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password with min 4 char validation */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        Password (Minimum 4 characters) *
+                      </label>
+                      {regPassword && (
+                        <span className={`text-[10px] font-bold ${isPasswordValid ? 'text-emerald-500' : 'text-rose-500'}`}>
+                          {isPasswordValid ? `✓ ${regPassword.length} chars (OK)` : `${regPassword.length}/4 chars`}
+                        </span>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <Lock className="w-4 h-4" />
+                      </div>
+                      <input
+                        type={regShowPassword ? 'text' : 'password'}
+                        required
+                        value={regPassword}
+                        onChange={(e) => setRegPassword(e.target.value)}
+                        placeholder="Enter minimum 4 characters"
+                        className={`block w-full pl-10 pr-10 py-2 text-xs rounded-xl border ${
+                          regPassword && !isPasswordValid
+                            ? 'border-rose-400 focus:ring-rose-400'
+                            : 'border-slate-300 dark:border-slate-700 focus:ring-brand-500'
+                        } bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setRegShowPassword(!regShowPassword)}
+                        className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                      >
+                        {regShowPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Roll Number & Department */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                        Roll Number (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={regRollNumber}
+                        onChange={(e) => setRegRollNumber(e.target.value)}
+                        placeholder="e.g. 22CSE052"
+                        className="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                        Department
+                      </label>
+                      <select
+                        value={regDepartment}
+                        onChange={(e) => setRegDepartment(e.target.value)}
+                        className="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      >
+                        <option value="Computer Science & Engineering">Computer Science</option>
+                        <option value="Information Technology">Information Tech</option>
+                        <option value="Electronics & Communication">Electronics</option>
+                        <option value="Mechanical Engineering">Mechanical</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="lg"
+                    loading={isLoading}
+                    className="w-full mt-3 py-3 text-xs font-bold shadow-lg shadow-brand-500/25"
+                    icon={UserPlus}
+                    iconPosition="right"
+                  >
+                    Create Student Account & Enter
+                  </Button>
+                </form>
+              )}
+
+              {/* ----- OPTION B: TEACHER / FACULTY REGISTRATION FORM ----- */}
+              {regRole === 'faculty' && (
+                <form onSubmit={handleRegisterFacultySubmit} className="space-y-3">
+                  {/* Faculty Name */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      Faculty Full Name *
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <User className="w-4 h-4" />
+                      </div>
+                      <input
+                        type="text"
+                        required
+                        value={regFacName}
+                        onChange={(e) => setRegFacName(e.target.value)}
+                        placeholder="e.g. Dr. Sneha Verma"
+                        className="block w-full pl-10 pr-4 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Institutional Email */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        Institutional Email (Must contain @) *
+                      </label>
+                      {regFacEmail && (
+                        <span className={`text-[10px] font-bold ${isFacEmailValid ? 'text-emerald-500' : 'text-rose-500'}`}>
+                          {isFacEmailValid ? '✓ Valid @ email' : '✗ Missing @'}
+                        </span>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <Mail className="w-4 h-4" />
+                      </div>
+                      <input
+                        type="email"
+                        required
+                        value={regFacEmail}
+                        onChange={(e) => setRegFacEmail(e.target.value)}
+                        placeholder="e.g. sverma@edutrack.edu or sneha@gmail.com"
+                        className={`block w-full pl-10 pr-4 py-2 text-xs rounded-xl border ${
+                          regFacEmail && !isFacEmailValid
+                            ? 'border-rose-400 focus:ring-rose-400'
+                            : 'border-slate-300 dark:border-slate-700 focus:ring-brand-500'
+                        } bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2`}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password with min 4 char validation */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        Password (Minimum 4 characters) *
+                      </label>
+                      {regFacPassword && (
+                        <span className={`text-[10px] font-bold ${isFacPasswordValid ? 'text-emerald-500' : 'text-rose-500'}`}>
+                          {isFacPasswordValid ? `✓ ${regFacPassword.length} chars (OK)` : `${regFacPassword.length}/4 chars`}
+                        </span>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <Lock className="w-4 h-4" />
+                      </div>
+                      <input
+                        type={regFacShowPassword ? 'text' : 'password'}
+                        required
+                        value={regFacPassword}
+                        onChange={(e) => setRegFacPassword(e.target.value)}
+                        placeholder="Enter minimum 4 characters"
+                        className={`block w-full pl-10 pr-10 py-2 text-xs rounded-xl border ${
+                          regFacPassword && !isFacPasswordValid
+                            ? 'border-rose-400 focus:ring-rose-400'
+                            : 'border-slate-300 dark:border-slate-700 focus:ring-brand-500'
+                        } bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setRegFacShowPassword(!regFacShowPassword)}
+                        className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                      >
+                        {regFacShowPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Designation & Department */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                        Designation
+                      </label>
+                      <select
+                        value={regFacDesignation}
+                        onChange={(e) => setRegFacDesignation(e.target.value)}
+                        className="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      >
+                        <option value="Professor & HOD">Professor & HOD</option>
+                        <option value="Associate Professor">Associate Professor</option>
+                        <option value="Assistant Professor">Assistant Professor</option>
+                        <option value="Senior Lecturer">Senior Lecturer</option>
+                        <option value="Adjunct Faculty">Adjunct Faculty</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                        Department
+                      </label>
+                      <select
+                        value={regFacDepartment}
+                        onChange={(e) => setRegFacDepartment(e.target.value)}
+                        className="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      >
+                        <option value="Computer Science & Engineering">Computer Science</option>
+                        <option value="Information Technology">Information Tech</option>
+                        <option value="Electronics & Communication">Electronics</option>
+                        <option value="Mechanical Engineering">Mechanical</option>
+                        <option value="Electrical Engineering">Electrical</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Qualification & Teaching Specialization */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                        Qualification
+                      </label>
+                      <input
+                        type="text"
+                        value={regFacQualification}
+                        onChange={(e) => setRegFacQualification(e.target.value)}
+                        placeholder="e.g. Ph.D, M.Tech"
+                        className="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                        Subject Specialization
+                      </label>
+                      <input
+                        type="text"
+                        value={regFacSpecialization}
+                        onChange={(e) => setRegFacSpecialization(e.target.value)}
+                        placeholder="e.g. Machine Learning"
+                        className="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      />
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="lg"
+                    loading={isLoading}
+                    className="w-full mt-3 py-3 text-xs font-bold shadow-lg shadow-brand-500/25"
+                    icon={Briefcase}
+                    iconPosition="right"
+                  >
+                    Create Teacher Profile & Enter
+                  </Button>
+                </form>
+              )}
 
               {/* Switch back to signin */}
               <div className="mt-4 text-center">
