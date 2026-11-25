@@ -715,11 +715,11 @@ export const LoginPage = () => {
                         onChange={(e) => setRegFacDepartment(e.target.value)}
                         className="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
                       >
-                        <option value="Computer Science & Engineering">Computer Science</option>
-                        <option value="Information Technology">Information Tech</option>
-                        <option value="Electronics & Communication">Electronics</option>
-                        <option value="Mechanical Engineering">Mechanical</option>
-                        <option value="Electrical Engineering">Electrical</option>
+                        <option value="Computer Science & Engineering">Computer Science & Engineering</option>
+                        <option value="Information Technology">Information Technology</option>
+                        <option value="Electronics & Communication">Electronics & Communication</option>
+                        <option value="Mechanical Engineering">Mechanical Engineering</option>
+                        <option value="Electrical Engineering">Electrical Engineering</option>
                       </select>
                     </div>
                   </div>

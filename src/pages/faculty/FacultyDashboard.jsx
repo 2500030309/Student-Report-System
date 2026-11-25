@@ -46,9 +46,9 @@ export const FacultyDashboard = () => {
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-900 via-indigo-950 to-slate-900 p-6 sm:p-8 text-white shadow-xl">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-brand-200 text-xs font-semibold mb-2">
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold mb-2 shadow-sm">
               <Sparkles className="w-3.5 h-3.5 text-brand-300" />
-              <span>{currentUser?.department || 'Department of Computer Science & Engineering'}</span>
+              <span className="text-white font-medium">{currentUser?.department || 'Department of Computer Science & Engineering'}</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
               Good morning, {currentUser?.name || 'Prof. Sneha Sen'}
