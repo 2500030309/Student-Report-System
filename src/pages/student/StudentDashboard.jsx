@@ -30,8 +30,22 @@ export const StudentDashboard = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
-  // Find active student record (Rohan Sharma STU2024001)
-  const currentStudent = students.find(s => s.id === currentUser?.id || s.email === currentUser?.email) || students[0];
+  // Find active student record (or logged-in newly registered student)
+  const currentStudent = students.find(
+    s => (currentUser?.id && s.id === currentUser.id) || 
+         (currentUser?.email && s.email && s.email.toLowerCase() === currentUser.email.toLowerCase())
+  ) || {
+    id: currentUser?.id || 'STU_CURRENT',
+    name: currentUser?.name || 'Student',
+    rollNumber: currentUser?.rollNumber || '22CSE099',
+    className: currentUser?.className || 'B.Tech CSE - Sem 5A',
+    department: currentUser?.department || 'Computer Science & Engineering',
+    semester: currentUser?.semester || 5,
+    cgpa: currentUser?.cgpa || 8.5,
+    attendanceRate: currentUser?.attendanceRate || 90.0,
+    avatar: currentUser?.avatar || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
+    status: 'Active'
+  };
   const myMarks = marks.filter(m => m.studentId === currentStudent.id);
 
   // Subject attendance breakdown
@@ -76,7 +90,7 @@ export const StudentDashboard = () => {
                 <Sparkles className="w-3 h-3 text-brand-300" />
                 <span>Roll: {currentStudent.rollNumber} • {currentStudent.className || 'B.Tech CSE 5A'}</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
                 Welcome back, {currentStudent.name}
               </h1>
               <p className="text-xs sm:text-sm text-slate-300 font-normal mt-0.5">

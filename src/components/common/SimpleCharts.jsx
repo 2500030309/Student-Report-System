@@ -19,9 +19,9 @@ export const PerformanceTrendChart = ({ data, height = 220 }) => {
   const getX = (idx) => padding.left + (idx / (data.length - 1)) * chartWidth;
   const getY = (val) => padding.top + chartHeight - ((val - minVal) / (maxVal - minVal)) * chartHeight;
 
-  // Generate SVG path string
+  // Generate SVG polygon points
   const points = data.map((d, i) => `${getX(i)},${getY(d.value)}`).join(' ');
-  const areaPath = `${points} L ${getX(data.length - 1)},${height - padding.bottom} L ${padding.left},${height - padding.bottom} Z`;
+  const areaPoints = `${points} ${getX(data.length - 1)},${height - padding.bottom} ${padding.left},${height - padding.bottom}`;
 
   return (
     <div className="w-full overflow-x-auto">
@@ -60,7 +60,7 @@ export const PerformanceTrendChart = ({ data, height = 220 }) => {
         })}
 
         {/* Filled Area */}
-        <polygon points={areaPath} fill="url(#trendGradient)" />
+        <polygon points={areaPoints} fill="url(#trendGradient)" />
 
         {/* Trend Line */}
         <polyline
