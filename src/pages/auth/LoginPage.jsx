@@ -254,7 +254,7 @@ export const LoginPage = () => {
           <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800/80 text-center">
             <div className="flex items-center justify-center space-x-1.5 text-slate-400 text-xs font-medium">
               <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              <span>256-bit Institutional SSL • CO-1 through CO-6 Syllabus Compliant</span>
+              <span>256-bit Institutional SSL Security</span>
             </div>
           </div>
         </div>

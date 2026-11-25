@@ -2,7 +2,6 @@
 
 > **A Premium, Production-Quality Educational SaaS Application**  
 > Autonomous Campus Academic Portal • Designed for NAAC 'A+' & NBA Tier-1 Higher Education Institutions  
-> *B.Tech Academic Hackathon Edition — Syllabus Alignment: CO-1 through CO-6*
 
 ---
 
@@ -129,14 +128,3 @@ src/
 ├── App.jsx
 └── main.jsx
 ```
-
----
-
-## 📜 Academic Syllabus Compliance
-
-- **CO-1:** Understand web application architecture, HTTP state handling, and client-side storage.
-- **CO-2:** Design responsive, accessible user interfaces following WCAG AA standards.
-- **CO-3:** Build modular component hierarchies with React Hooks and modern ES6+.
-- **CO-4:** Implement client-side routing and protected role-based page navigation.
-- **CO-5:** Manage shared application state using the Context API and LocalStorage.
-- **CO-6:** Implement interactive data visualizations and print-optimized academic report cards.

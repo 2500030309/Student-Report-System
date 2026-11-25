@@ -7,7 +7,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     const stored = getStorageItem(KEYS.CURRENT_USER);
-    return stored || MOCK_USERS[0]; // default to Admin
+    return stored || null;
   });
 
   useEffect(() => {

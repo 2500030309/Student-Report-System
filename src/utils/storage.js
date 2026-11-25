@@ -56,11 +56,6 @@ export const initializeStorage = () => {
     academicTerm: "Fall Semester 2024"
   }));
 
-  // Default active user is the Admin
-  if (!localStorage.getItem(KEYS.CURRENT_USER)) {
-    localStorage.setItem(KEYS.CURRENT_USER, JSON.stringify(MOCK_USERS[0]));
-  }
-
   localStorage.setItem(KEYS.INITIALIZED, 'true');
 };
 
@@ -88,7 +83,7 @@ export const resetStorage = () => {
 };
 
 export const storageService = {
-  getCurrentUser: () => getStorageItem(KEYS.CURRENT_USER, MOCK_USERS[0]),
+  getCurrentUser: () => getStorageItem(KEYS.CURRENT_USER, null),
   setCurrentUser: (user) => setStorageItem(KEYS.CURRENT_USER, user),
   logoutUser: () => localStorage.removeItem(KEYS.CURRENT_USER),
 
