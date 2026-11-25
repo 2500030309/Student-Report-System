@@ -40,6 +40,7 @@ export const AdminStudents = () => {
     name: '',
     rollNumber: '',
     email: '',
+    password: 'password123',
     gender: 'Male',
     department: 'Computer Science & Engineering',
     classId: 'CSE-5A',
@@ -96,6 +97,14 @@ export const AdminStudents = () => {
 
   const handleSaveAdd = (e) => {
     e.preventDefault();
+    if (!formData.email || !formData.email.includes('@')) {
+      alert('Please enter a valid email address containing "@"');
+      return;
+    }
+    if (!formData.password || formData.password.trim().length < 4) {
+      alert('Password must be at least 4 characters long');
+      return;
+    }
     addStudent(formData);
     setIsAddModalOpen(false);
   };
@@ -377,14 +386,29 @@ export const AdminStudents = () => {
 
             <div>
               <label className="block font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
-                Institutional Email
+                Email Address (Must contain @) *
               </label>
               <input
                 type="email"
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="student@edutrack.edu"
+                placeholder="student@gmail.com"
+                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
+              />
+            </div>
+
+            <div>
+              <label className="block font-bold uppercase text-slate-600 dark:text-slate-400 mb-1">
+                Account Password (Min 4 chars) *
+              </label>
+              <input
+                type="text"
+                required
+                minLength={4}
+                value={formData.password || ''}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                placeholder="Enter password (min 4 chars)"
                 className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
               />
             </div>
