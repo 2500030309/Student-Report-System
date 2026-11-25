@@ -69,26 +69,22 @@ export const LoginPage = () => {
     {
       role: 'admin',
       label: 'Administrator',
-      email: 'admin@edutrack.edu',
-      description: 'Dean / Registrar access'
+      email: 'admin@edutrack.edu'
     },
     {
       role: 'faculty',
       label: 'Faculty / Teacher',
-      email: 'faculty@edutrack.edu',
-      description: 'Class teacher & marks evaluator'
+      email: 'faculty@edutrack.edu'
     },
     {
       role: 'student',
       label: 'Student',
-      email: 'student@edutrack.edu',
-      description: 'Rohan Sharma (22CSE042)'
+      email: 'student@edutrack.edu'
     },
     {
       role: 'parent',
       label: 'Parent',
-      email: 'parent@edutrack.edu',
-      description: 'Mr. Ramesh Sharma (Ward)'
+      email: 'parent@edutrack.edu'
     }
   ];
 
@@ -304,21 +300,18 @@ export const LoginPage = () => {
                       key={item.role}
                       type="button"
                       onClick={() => handleSelectRole(item)}
-                      className={`p-2.5 rounded-xl text-left border text-xs transition-all duration-150 ${
+                      className={`p-3 rounded-xl text-left border text-xs transition-all duration-150 ${
                         selectedDemoRole === item.role
-                          ? 'border-brand-600 bg-brand-50/90 dark:bg-brand-950/80 text-brand-700 dark:text-brand-300 ring-2 ring-brand-500/30 font-semibold'
-                          : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300'
+                          ? 'border-brand-600 bg-brand-50/90 dark:bg-brand-950/80 text-brand-700 dark:text-brand-300 ring-2 ring-brand-500/30 font-bold'
+                          : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 font-medium'
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold">{item.label}</span>
+                        <span className="font-semibold text-xs">{item.label}</span>
                         {selectedDemoRole === item.role && (
-                          <CheckCircle2 className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400 shrink-0" />
+                          <CheckCircle2 className="w-4 h-4 text-brand-600 dark:text-brand-400 shrink-0" />
                         )}
                       </div>
-                      <span className="block text-[10px] text-slate-400 mt-0.5 truncate">
-                        {item.description}
-                      </span>
                     </button>
                   ))}
                 </div>
